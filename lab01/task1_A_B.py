@@ -57,13 +57,6 @@ duration = 1
 
 for freq in range(0, 301, 5):
   t, sine = generate_wave(amplitude, freq, fs, duration)
-  plt.figure()
-  plt.plot(t, sine)
-  plt.title(f'Iteration: {freq//5 + 1}, Frequency: {freq} Hz')
-  plt.xlabel('Time [s]')
-  plt.ylabel('Amplitude')
-  plt.grid()
-  plt.show()
 
 # Compare specific sine waves
 frequencies_to_compare = [(5, 105, 205), (95, 195, 295), (95, 105)]
@@ -84,13 +77,6 @@ def generate_cos_wave(amp, freq, sampling_rate, duration):
 
 for freq in range(0, 301, 5):
   t, cosine = generate_cos_wave(amplitude, freq, fs, duration)
-  plt.figure()
-  plt.plot(t, cosine)
-  plt.title(f'Iteration: {freq//5 + 1}, Frequency: {freq} Hz')
-  plt.xlabel('Time [s]')
-  plt.ylabel('Amplitude')
-  plt.grid()
-  plt.show()
 
 # Compare specific cosine waves
 for freqs in frequencies_to_compare:
