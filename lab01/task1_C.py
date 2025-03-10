@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-amplitude = 10
+amplitude = 1
 fs = 100
 duration = 1
 

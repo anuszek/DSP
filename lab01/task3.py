@@ -1,6 +1,5 @@
 import numpy as np
 from scipy import io
-from scipy import signal
 import os
 
 
@@ -19,7 +18,7 @@ for k in range(K):
     prefix = x[idx_start:idx_start + M]
 
     # cross correlation between prefix and signal
-    r = signal.correlate(x, prefix, mode='full')
+    r = np.correlate(x, prefix, mode='full')
     lags = np.arange(-(len(r)//2), len(r)//2 + 1)
 
     # find the index of the prefix start in the signal

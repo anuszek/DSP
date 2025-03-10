@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-duration = 0.1  
+duration = 0.9
 amplitude = 230
 frequency = 50  
 
