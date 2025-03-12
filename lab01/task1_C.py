@@ -19,9 +19,12 @@ def generate_cos_wave(amp, freq, sampling_rate, duration):
   cosine = amp * np.cos(2 * np.pi * freq * t)
   return t, cosine
 
-
+# plotting sine waves
+plt.figure()
 for freq in range(0, 301, 5):
   t, sine = generate_sin_wave(amplitude, freq, fs, duration)
+  plt.plot(t, sine, label=f'{freq} Hz')
+plt.show()
 
 plt.figure()
 plt.suptitle('Comparison of sine waves')
@@ -34,8 +37,12 @@ for i, freqs in enumerate(frequencies_to_compare):
   plt.grid()
 plt.show()
 
+# plotting cosine waves
+plt.figure()
 for freq in range(0, 301, 5):
   t, cosine = generate_cos_wave(amplitude, freq, fs, duration)
+  plt.plot(t, cosine, label=f'{freq} Hz')
+plt.show()
 
 plt.figure()
 plt.suptitle('Comparison of cosine waves')
@@ -46,5 +53,4 @@ for i, freqs in enumerate(frequencies_to_compare):
     plt.plot(t, cosine, label=f'{freq} Hz')
   plt.legend()
   plt.grid()
-
 plt.show()
