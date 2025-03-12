@@ -3,6 +3,9 @@ from scipy import io
 import os
 
 
+def my_correlate():
+    return
+
 mat_data = io.loadmat(os.path.join(os.path.dirname(__file__), 'adsl_x.mat'))
 x = mat_data['x'].flatten()
 
