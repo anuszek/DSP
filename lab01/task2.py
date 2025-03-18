@@ -10,7 +10,7 @@ def singen(amplitude, duration, frequency, sampling_rate, phase):
 
 amplA = 230
 freqA = 50
-timeA = 0.3
+timeA = 0.9
 phase = 0
 
 # signal sampled fs3 = 200 Hz
@@ -18,7 +18,7 @@ fs3 = 200
 sin200, time200 = singen(amplA, timeA, freqA, fs3, phase)
 
 # new time instances for fs = 10 kHz
-fs = 10000
+fs = 10_000
 time_high_res = np.arange(0, timeA, 1/fs)
 
 # signal reconstruction
@@ -36,18 +36,10 @@ sin_analog, _ = singen(amplA, timeA, freqA, fs, phase)
 # reconstruction error
 error = sin_analog - reconstructed_signal
 
-plt.figure()
-plt.plot(time_high_res, reconstructed_signal, label='Reconstructed Signal')
-plt.plot(time_high_res, sin_analog, label='Original Signal', linestyle='dashed')
-plt.legend()
-plt.xlabel('Time [s]')
-plt.ylabel('Amplitude')
-plt.title('Signal Reconstruction')
-plt.show()
 
 plt.figure()
-plt.plot(time_high_res, sin_analog, 'b', label='Original signal (pseudo-analog)')
-plt.plot(time_high_res, reconstructed_signal, 'r', linestyle='dashed', label='Reconstructed signal')
+plt.plot(time_high_res, sin_analog, label='Original signal (pseudo-analog)')
+plt.plot(time_high_res, reconstructed_signal, 'r--', label='Reconstructed signal')
 plt.xlabel('Time [s]')
 plt.ylabel('Amplitude')
 plt.legend()
