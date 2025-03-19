@@ -10,7 +10,7 @@ f_s_B2 = [10_000, 26, 25, 24]
 
 
 def generate_wave(amp, freq, sampling_rate, duration):
-  t = np.linspace(0, duration, int(sampling_rate * duration))
+  t = np.linspace(0, duration, int(sampling_rate * duration), endpoint=False)
   sine = amp * np.sin(2 * np.pi * freq * t)
   return t, sine
 

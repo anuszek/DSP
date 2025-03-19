@@ -5,7 +5,7 @@ matplotlib.use('TkAgg')
 
 def singen(amplitude, duration, frequency, sampling_rate, phase):
     t = np.arange(0, duration, 1/sampling_rate)
-    signal = amplitude * np.sin(2 * np.pi * frequency * t + phase)
+    signal = np.round(amplitude * np.sin(2 * np.pi * frequency * t + phase), 8)
     return signal, t
 
 amplA = 230

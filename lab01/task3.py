@@ -34,14 +34,15 @@ best_score = list()
 prefix_positions = list()
 
 for i in range(len(input_signal)):
-    prefix = input_signal[i:i+M]
-    correlation = np.correlate(prefix, input_signal, mode='full')
-    # correlation = xcorr(prefix, input_signal)
-
-    if len(np.where(correlation == max(correlation))[0]) >= 2:
+    # iterowanie od 0
+    prefix = input_signal[i:i + M]
+    correlation = np.correlate(input_signal, prefix, 'full')
+    y = max(correlation)
+    z = np.where(correlation == y)[0]
+    if len(z) >= 2:
         best_prefix.append(prefix)
         best_score.append(correlation)
-        prefix_positions.append(i)
+        prefix_positions.append(i-M)
 
 for i in range(len(best_score)):
     plt.axvline(prefix_positions[i], color='red')
