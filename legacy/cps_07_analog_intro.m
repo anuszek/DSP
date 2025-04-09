@@ -8,7 +8,7 @@ if(0)  % dobor wartosci wspolczynnikow wielomianow zmiennej 's' transmitancji
    z = roots(b); p = roots(a);     % [b,a] --> [z,p]
 else   % dobor wartosci pierwiastkow wielomianow zmiennej 's' transmitancji
    wzm = 0.001;
-   z = j*2*pi*[ 600,800 ];         z = [z conj(z)];  
+   z = j*2*pi*[ 600,800 ];         z = [z conj(z)];
    p = [-1,-1] + j*2*pi*[100,200]; p = [p conj(p)];
    b = wzm*poly(z);  a = poly(p); % [z,p] --> [b,a]
 end
