@@ -88,7 +88,7 @@ plot_spectrum(y_SSB_SC, fs);
 title('Widmo SSB-SC');
 xlim([0 fs/2]);
 
-%% Funkcja do wyświetlania widma
+% Funkcja do wyświetlania widma
 function plot_spectrum(signal, fs)
     N = length(signal);
     f = (0:N-1)*fs/N;
@@ -98,3 +98,172 @@ function plot_spectrum(signal, fs)
     ylabel('Amplituda');
     grid on;
 end
+
+%% Demodulacja sygnałów
+
+% Funkcja demodulacji z wykorzystaniem filtra Hilberta
+function demod_signal = demodulate_AM(signal, fc, fs, fsx, mode)
+    % mode: 'DSB-C', 'DSB-SC', 'SSB-USB', 'SSB-LSB'
+    
+    t = (0:length(signal)-1)'/fs;
+    
+    % Generowanie sygnałów nośnych
+    carrier = cos(2*pi*fc*t);
+    carrier_h = sin(2*pi*fc*t); % Nośna przesunięta o 90 stopni
+    
+    % Implementacja filtra Hilberta
+    M = 100;
+    n = -M:M;
+    h = (1 - cos(pi * n)) ./ (pi * n);
+    h(M+1) = 0;
+    
+    switch mode
+        case 'DSB-C'
+            % Demodulacja DSB-C - detekcja obwiedni
+            demod_signal = abs(hilbert(signal)) - 1;
+            
+        case 'DSB-SC'
+            % Demodulacja synchroniczna DSB-SC
+            mixed = signal .* carrier;
+            % Filtr dolnoprzepustowy
+            [b,a] = butter(6, fc/fs);
+            demod_signal = filtfilt(b, a, mixed);
+            
+        case {'SSB-USB', 'SSB-LSB'}
+            % Demodulacja SSB-SC - metoda synchroniczna z filtrem Hilberta
+            mixed_i = signal .* carrier;
+            mixed_q = signal .* carrier_h;
+            
+            % Filtracja Hilberta
+            mixed_q_filtered = conv(mixed_q, h, 'same');
+            
+            if strcmp(mode, 'SSB-USB')
+                demod_signal = mixed_i - mixed_q_filtered;
+            else % SSB-LSB
+                demod_signal = mixed_i + mixed_q_filtered;
+            end
+            
+            % Filtr dolnoprzepustowy
+            [b,a] = butter(6, fc/fs);
+            demod_signal = filtfilt(b, a, demod_signal);
+    end
+    
+    % Dekimacja do oryginalnej częstotliwości próbkowania audio
+    downsample_factor = fs/fsx;
+    demod_signal = decimate(demod_signal, downsample_factor);
+    
+    % Normalizacja
+    demod_signal = demod_signal / max(abs(demod_signal));
+end
+
+% DSB-C
+x1_DSB_C = demodulate_AM(y_DSB_C, fc1, fs, fsx, 'DSB-C');
+x2_DSB_C = demodulate_AM(y_DSB_C, fc2, fs, fsx, 'DSB-C');
+x2_DSB_C = flipud(x2_DSB_C); % Odwrócenie sygnału
+
+% DSB-SC
+x1_DSB_SC = demodulate_AM(y_DSB_SC, fc1, fs, fsx, 'DSB-SC');
+x2_DSB_SC = demodulate_AM(y_DSB_SC, fc2, fs, fsx, 'DSB-SC');
+x2_DSB_SC = flipud(x2_DSB_SC); % Odwrócenie sygnału
+
+% SSB-SC (pierwsza stacja to USB, druga to LSB)
+x1_SSB_SC = demodulate_AM(y_SSB_SC, fc1, fs, fsx, 'SSB-USB');
+x2_SSB_SC = demodulate_AM(y_SSB_SC, fc2, fs, fsx, 'SSB-LSB');
+x2_SSB_SC = flipud(x2_SSB_SC); % Odwrócenie sygnału
+
+%% Odtworzenie sygnałów dźwiękowych
+fprintf('Odtwarzanie zdekodowanych sygnałów...\n');
+
+% DSB-C
+fprintf('\nDSB-C - Stacja 1:\n');
+sound(x1_DSB_C, fsx);
+pause(length(x1_DSB_C)/fsx + 1);
+
+fprintf('DSB-C - Stacja 2 (odwrócony):\n');
+sound(x2_DSB_C, fsx);
+pause(length(x2_DSB_C)/fsx + 1);
+
+% DSB-SC
+fprintf('\nDSB-SC - Stacja 1:\n');
+sound(x1_DSB_SC, fsx);
+pause(length(x1_DSB_SC)/fsx + 1);
+
+fprintf('DSB-SC - Stacja 2 (odwrócony):\n');
+sound(x2_DSB_SC, fsx);
+pause(length(x2_DSB_SC)/fsx + 1);
+
+% SSB-SC
+fprintf('\nSSB-SC - Stacja 1 (USB):\n');
+sound(x1_SSB_SC, fsx);
+pause(length(x1_SSB_SC)/fsx + 1);
+
+fprintf('SSB-SC - Stacja 2 (LSB, odwrócony):\n');
+sound(x2_SSB_SC, fsx);
+
+
+%% Ocena jakości transmisji - współczynnik SNR
+function snr_val = calculate_snr(original, received)
+    error = original - received;
+    snr_val = 10*log10(sum(original.^2)/sum(error.^2));
+end
+
+% Obliczenie SNR dla wszystkich demodulacji
+snr_results = zeros(6,1);
+snr_results(1) = calculate_snr(x1, x1_DSB_C);
+snr_results(2) = calculate_snr(x2, x2_DSB_C);
+snr_results(3) = calculate_snr(x1, x1_DSB_SC);
+snr_results(4) = calculate_snr(x2, x2_DSB_SC);
+snr_results(5) = calculate_snr(x1, x1_SSB_SC);
+snr_results(6) = calculate_snr(x2, x2_SSB_SC);
+
+% Wykresy porównawcze
+figure;
+
+% DSB-C
+subplot(3,2,1);
+plot(x1); hold on; plot(x1_DSB_C);
+title(['DSB-C Stacja 1, SNR = ' num2str(snr_results(1)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+subplot(3,2,2);
+plot(x2); hold on; plot(x2_DSB_C);
+title(['DSB-C Stacja 2, SNR = ' num2str(snr_results(2)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+% DSB-SC
+subplot(3,2,3);
+plot(x1); hold on; plot(x1_DSB_SC);
+title(['DSB-SC Stacja 1, SNR = ' num2str(snr_results(3)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+subplot(3,2,4);
+plot(x2); hold on; plot(x2_DSB_SC);
+title(['DSB-SC Stacja 2, SNR = ' num2str(snr_results(4)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+% SSB-SC
+subplot(3,2,5);
+plot(x1); hold on; plot(x1_SSB_SC);
+title(['SSB-SC Stacja 1 (USB), SNR = ' num2str(snr_results(5)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+subplot(3,2,6);
+plot(x2); hold on; plot(x2_SSB_SC);
+title(['SSB-SC Stacja 2 (LSB), SNR = ' num2str(snr_results(6)) ' dB']);
+legend('Oryginał', 'Odtworzony');
+
+
+%% SSB-SC dwie stacje na jednej nośnej
+
+% Demodulacja
+x1_SSB_SC = demodulate_AM(y_SSB_SC, fc1, fs, fsx, 'SSB-USB');
+x2_SSB_SC = demodulate_AM(y_SSB_SC, fc1, fs, fsx, 'SSB-LSB');
+x2_SSB_SC = flipud(x2_SSB_SC); % Odwrócenie sygnału
+
+% Odtworzenie dźwięku
+fprintf('Odtwarzanie stacji 1 (USB):\n');
+sound(x1_SSB_SC, fsx);
+pause(length(x1_SSB_SC)/fsx + 1);
+
+fprintf('Odtwarzanie stacji 2 (LSB, odwrócony):\n');
+sound(x2_SSB_SC, fsx);
