@@ -99,6 +99,21 @@ function plot_spectrum(signal, fs)
     grid on;
 end
 
+% % Skala logarytmiczna
+% function plot_spectrum(signal, fs)
+%     N = length(signal);
+%     f = (0:N-1)*fs/N;
+%     spectrum = abs(fft(signal))/N;
+% 
+%     % Unikamy log(0), dodając bardzo małą wartość
+%     spectrum_dB = 20*log10(spectrum + 1e-12);
+% 
+%     plot(f(1:N/2), spectrum_dB(1:N/2));
+%     xlabel('Częstotliwość [Hz]');
+%     ylabel('Amplituda [dB]');
+%     grid on;
+% end
+
 %% Demodulacja sygnałów
 
 % Funkcja demodulacji z wykorzystaniem filtra Hilberta
@@ -144,7 +159,7 @@ function demod_signal = demodulate_AM(signal, fc, fs, fsx, mode)
             end
             
             % Filtr dolnoprzepustowy
-            [b,a] = butter(6, fc/fs);
+            [b,a] = butter(6, fsx / (fs/2));
             demod_signal = filtfilt(b, a, demod_signal);
     end
     
@@ -199,6 +214,7 @@ pause(length(x1_SSB_SC)/fsx + 1);
 
 fprintf('SSB-SC - Stacja 2 (LSB, odwrócony):\n');
 sound(x2_SSB_SC, fsx);
+pause(length(x2_SSB_SC)/fsx +1);
 
 
 %% Ocena jakości transmisji - współczynnik SNR
@@ -267,3 +283,4 @@ pause(length(x1_SSB_SC)/fsx + 1);
 
 fprintf('Odtwarzanie stacji 2 (LSB, odwrócony):\n');
 sound(x2_SSB_SC, fsx);
+pause(length(x2_SSB_SC)/fsx + 1);
