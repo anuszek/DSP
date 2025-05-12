@@ -4,7 +4,7 @@ close all; clc; clear;
 data = open("lab08_am.mat");
 
 % Wybieranie sygnału zgodnego z przedostatnią cyfrą indeksu
-x = data.s4;
+x = data.s3;
 
 % Parametry
 Fc = 200;             % częstotliwość nośnej

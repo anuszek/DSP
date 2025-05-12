@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import scipy.signal as signal
 import scipy.io.wavfile as wav
@@ -91,51 +92,10 @@ def sinc_interp(x, fs_in, fs_out, window='blackman', num_taps=64):
         x_resampled[i] = np.dot(x_segment, kernel[k_left:k_right])
     return x_resampled
 
-
-def sinc_interp(x, fs_in, fs_out, window='blackman', num_taps=64):
-    """
-    Zmiana częstotliwości próbkowania sygnału x z fs_in do fs_out
-    przy użyciu interpolacji sinc z oknem.
-
-    Parametry:
-    - x: sygnał wejściowy (1D numpy array)
-    - fs_in: oryginalna częstotliwość próbkowania
-    - fs_out: docelowa częstotliwość próbkowania
-    - window: typ okna (np. 'blackman')
-    - num_taps: liczba współczynników filtru
-
-    Zwraca:
-    - x_resampled: sygnał po zmianie częstotliwości próbkowania
-    """
-    # Obliczenie współczynnika zmiany częstotliwości
-    ratio = fs_out / fs_in
-    n = np.arange(-num_taps // 2, num_taps // 2 + 1)
-    sinc_func = np.sinc(n / ratio)
-
-    # Zastosowanie okna
-    window_vals = get_window(window, num_taps + 1)
-    kernel = sinc_func * window_vals
-    kernel /= np.sum(kernel)
-
-    # Obliczenie liczby próbek w sygnale wyjściowym
-    num_output_samples = int(len(x) * ratio)
-
-    # Interpolacja
-    x_resampled = np.zeros(num_output_samples)
-    for i in range(num_output_samples):
-        t = i / ratio
-        left = int(np.floor(t)) - num_taps // 2
-        right = left + num_taps + 1
-        x_segment = x[max(left, 0):min(right, len(x))]
-        k_left = max(0, -left)
-        k_right = k_left + len(x_segment)
-        x_resampled[i] = np.dot(x_segment, kernel[k_left:k_right])
-    return x_resampled
-
-
 # Wczytaj pliki
-fs1, x1 = wav.read("x1.wav")
-fs2, x2 = wav.read("x2.wav")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+fs1, x1 = wav.read(os.path.join(script_dir, "x1.wav"))
+fs2, x2 = wav.read(os.path.join(script_dir, "x2.wav"))
 
 # Zamień na float w zakresie [-1, 1] jeśli dane są w int16
 if x1.dtype != np.float32:
