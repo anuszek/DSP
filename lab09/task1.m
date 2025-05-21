@@ -14,14 +14,14 @@ for i = 1:3
     d_noisy{i} = awgn(dref, noise_levels(i), 'measured');
 end
 
-%% 2. Dobór parametrów filtru (M i mi)
-M = 4;          % Długość filtra
-mi = 0.1;      % Współczynnik szybkości adaptacji (NLMS)
-use_NLMS = false; % Wybór algorytmu NLMS
+%% 2. Dobór parametrów filtra (M i mi)
+M = 3;          % Długość filtra
+mi = 0.69;      % Współczynnik szybkości adaptacji NLMS (0.1 - 2, 0.1 - 1 dla dobrej wydajności)
+use_NLMS = true; % Wybór algorytmu NLMS
 
 % Testowanie dla różnych poziomów szumu
 SNRdB_results = zeros(1,3);
-d = d_noisy{1};
+d = d_noisy{2};
 x = [d(1), d(1:end-1)];
     
 % Inicjalizacja zmiennych
@@ -30,7 +30,7 @@ e = zeros(length(x), 1);
 bx = zeros(M,1);
 h = zeros(M,1);
     
-    % Główna pętla filtru
+    % Główna pętla filtra
     for n = 1:length(x)
         bx = [x(n); bx(1:M-1)];
         y(n) = h' * bx;
@@ -46,7 +46,7 @@ h = zeros(M,1);
     
 
 %% 3. Sygnał SFM
-fc = 1000; delta_f = 5; fm = 0.25;
+fc = 1000; delta_f = 500; fm = 0.25;
 beta = delta_f/fm;
 dref_sfm = cos(2*pi*fc*t + beta*sin(2*pi*fm*t));
 
@@ -108,7 +108,7 @@ SNRdB_mowa = 10*log10(mean(mowa.^2)/mean(error_mowa.^2));
 % Dla sygnału harmonicznego
 figure;
 subplot(2,1,1);
-plot(t, dref, 'b', t, d_noisy{1}, 'r', t, y, 'g');
+plot(t, dref, 'b', t, d_noisy{2}, 'r', t, y, 'g');
 legend('Oryginał', 'Zaszumiony', 'Odszumiony');
 title('Porównanie sygnałów harmonicznych');
 xlabel('Czas [s]'); ylabel('Amplituda');
