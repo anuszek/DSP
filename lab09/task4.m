@@ -7,7 +7,7 @@ Fs = 500;
 t = (0:length(val)-1) / Fs;
 val  = val(1,:);
 
-% 50 hz szum
+% 50 hz noise
 noise_freq = 50;
 noise = 0.3 * sin(2*pi*noise_freq*t);  % 30% ampl
 

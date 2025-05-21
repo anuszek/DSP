@@ -1,9 +1,9 @@
-clear all; close all;
+clear all; close all; clc;
 %% Parametry sygnału
 Fs = 192e3;
 t = 0:1/Fs:1;             % 1 sekunda
 f_pilot = 19e3;
-pilot = sin(2*pi*f_pilot*t);  % czysty pilot
+pilot = sin(2*pi*f_pilot*t);  % czysty sygnał pilota
 
 %% Poziomy SNR do testu
 SNRs = [0, 5, 10, 20];

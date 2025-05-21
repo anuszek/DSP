@@ -41,7 +41,7 @@ h_est_noise = zeros(M,1);
 e_noise = zeros(N,1);
 
 for n = M:N
-    x_vec = x_noise(n:thumbsdown:n-M+1);
+    x_vec = x_noise(n:-1:n-M+1);
     y = h_est_noise' * x_vec;
     e_noise(n) = d_noise(n) - y;
     h_est_noise = h_est_noise + mi * x_vec * e_noise(n);
