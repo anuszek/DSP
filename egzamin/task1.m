@@ -1,42 +1,62 @@
-% cps_02_sygnaly.m
 clear all; close all; clc;
-fpr=8000;  % czestotliwosc probkowania
-Nx=5*fpr;  % liczba probek
+fpr=100;  % czestotliwosc probkowania
+Nx=1000;  % liczba probek
 dt = 1/fpr;  % okres probkowania
 t = dt*(0:Nx-1);  % chwile pobierania probek
 
-% Parametry modulacji AM
-f_A = 0.5 * (fpr/100);
-k_A = 0.25;
+% Parametry AM-FM
+f_A = 0.5;    % Hz, czestotliwosc modulacji AM
+k_A = 0.25;   % glebokosc modulacji AM
+f_0 = 5;      % Hz, czestotliwosc nosna FM
+f_F = 2;      % Hz, czestotliwosc modulujaca FM
+k_F = 5;      % glebokosc modulacji FM
 
-% Parametry modulacji FM
-f_0 = 5 * (fpr/100);
-f_F = 2 * (fpr/100);
-k_F = 5 * (fpr/100);
+AM = 1 + k_A * sin(2*pi*f_A*t); % obwiednia AM
+FM = sin(2*pi*f_0*t + k_F * sin(2*pi*f_F*t)); % sygnal FM
 
-% Sygnały bazowe
-x1 = sin(2*pi*10*(fpr/100)*t);  
-x2 = sin(2*pi*1*(fpr/100)*t);   
+x = AM .* FM; % sygnal AM-FM
 
-x_FM = sin(2*pi*(f_0*t - (k_F / (2*pi*f_F)) * cos(2*pi*f_F*t)));
+plot(t, x, 'b-');
+grid; title('Sygnał AM-FM');
+xlabel('czas [s]'); ylabel('Amplituda');
 
-% Sygnał z modulacją AM-FM
-x = (1 + k_A*x2) .* x_FM;
-
-% Wykresy
+% Obwiednia amplitudy (AM)
 figure;
-subplot(3,1,1);
-plot(t(1:1000), x2(1:1000), 'b-'); 
-grid; title('Sygnał modulujący AM: x2(t)'); xlabel('czas [s]'); ylabel('Amplituda');
+plot(t, x, 'b', t, AM, 'r--', t, -AM, 'r--');
+grid; title('Sygnał AM-FM z obwiednią AM');
+xlabel('czas [s]'); ylabel('Amplituda');
+legend('Sygnał x', 'Obwiednia +AM', 'Obwiednia -AM');
 
-subplot(3,1,2);
-plot(t(1:1000), x_FM(1:1000), 'r-'); 
-grid; title('Sygnał z modulacją FM: x_FM(t)'); xlabel('czas [s]'); ylabel('Amplituda');
 
-subplot(3,1,3);
-plot(t(1:1000), x(1:1000), 'g-'); 
-grid; title('Sygnał z modulacją AM-FM: x(t)'); xlabel('czas [s]'); ylabel('Amplituda');
 
-% Odsłuchanie sygnału
-fprintf('Odtwarzanie sygnału z modulacją AM-FM...\n');
-soundsc(x, fpr);
+%% Zwiększona częstotliwość próbkowania i proporcjonalne częstotliwości
+
+fpr = 8000;
+Nx = 5*fpr;
+dt = 1/fpr;
+t = dt*(0:Nx-1);
+
+% Proporcjonalnie zwiększone częstotliwości
+f_A = 0.5 * 80;    % 40 Hz
+k_A = 0.25;
+f_0 = 5 * 80;      % 400 Hz
+f_F = 2 * 80;      % 160 Hz
+k_F = 5;
+
+% Definicje z tabeli 2.2
+mA = sin(2*pi*f_A*t); % sygnał modulujący AM
+AM = 1 + k_A * mA;    % obwiednia AM
+
+mF = sin(2*pi*f_F*t); % sygnał modulujący FM
+FM = sin(2*pi*f_0*t + k_F * cumsum(mF)*dt); % FM zgodnie z tabelą
+
+x = AM .* FM; % sygnał AM-FM
+
+soundsc(x, fpr); % odsłuch sygnału
+
+% wykres fragmentu sygnału
+figure;
+plot(t(1:1000), x(1:1000));
+title('Fragment sygnału AM-FM');
+xlabel('czas [s]'); ylabel('Amplituda');
+grid;
