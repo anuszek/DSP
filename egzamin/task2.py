@@ -17,12 +17,12 @@ fig, axes = plt.subplots(2, 4, figsize=(16, 8))
 axes = axes.flatten()
 
 for i in range(K):
-    start = i * (M + N) + M  # Początek ramki po prefiksie
-    ramka = x[start:start + N]  # Pobranie ramki
+    start = i * (M + N) + M  # początek ramki po prefiksie
+    ramka = x[start:start + N]  # pobranie ramki
 
     # FFT
     X = np.fft.fft(ramka)
-    freq = np.fft.fftfreq(N, d=1/fs)  # Skala częstotliwości
+    freq = np.fft.fftfreq(N, d=1/fs)  # skala częstotliwości
 
     # Plot on subplot
     axes[i].plot(freq[:N//2], np.abs(X[:N//2]))  # Tylko dodatnie częstotliwości

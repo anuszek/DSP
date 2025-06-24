@@ -5,11 +5,12 @@ from scipy.io.wavfile import write
 import os
 
 # Parametry  
-fs = 3.2e6          # Częstotliwość próbkowania
-N = int(32e6)       # Liczba próbek IQ
-fc = 0.5e6          # Przesunięcie częstotliwości nośnej
-bwSERV = 80e3       # Pasmo jednej stacji
-bwAUDIO = 16e3      # Pasmo audio
+fs = 3.2e6          # częstotliwość próbkowania
+N = int(32e6)       # liczba próbek IQ
+# fc = 0.5e6          # przesunięcie częstotliwości nośnej
+fc = -7.08e5
+bwSERV = 80e3       # pasmo jednej stacji
+bwAUDIO = 16e3      # pasmo audio
 
 # Wczytanie danych  
 path = os.path.join(os.path.dirname(__file__), "samples_100MHz_fs3200kHz.raw")
@@ -19,6 +20,15 @@ with open(path, 'rb') as f:
 s = s.astype(np.float32) - 127.0
 wideband_signal = s[0::2] + 1j * s[1::2]
 del s
+
+# Wykres do szukania stacji
+plt.figure(figsize=(12, 6))
+f, Pxx = welch(wideband_signal, fs=fs, nperseg=4096, return_onesided=False)
+plt.semilogy(np.fft.fftshift(f), np.fft.fftshift(Pxx))
+plt.title("Full Spectrum Map of the Captured Signal")
+plt.xlabel("Frequency Offset [Hz]")
+plt.ylabel("Power Spectral Density")
+# plt.show()
 
 # Przesunięcie stacji do pasma podstawowego  
 n = np.arange(N)
@@ -77,3 +87,4 @@ def plot_time_and_psd(signal, fs, title):
 
 # Wykres końcowego sygnału audio  
 plot_time_and_psd(ym, bwAUDIO, "Sygnał audio (po filtracji i dekymacji)")
+

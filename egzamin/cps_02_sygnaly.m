@@ -14,3 +14,4 @@ x7=sin(2*pi*(10*t+9*cumsum(x2)*dt)); % to samo co x6; dlaczego?
 x = x1; % wybor: x1,x2,...,x7, 0.23*x1 + x2, x1.*x3, ...
 
 plot(t, x, 'o-'); grid; title('Sygnal x(t)'); xlabel('czas [s]'); ylabel('Amplituda');
+
